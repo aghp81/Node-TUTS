@@ -1,26 +1,33 @@
 const fs = require('fs');
 
-// خواندن فایل JSON
 fs.readFile('users.json', 'utf8', (err, data) => {
     if (err) {
         console.error('خطا در خواندن فایل:', err);
         return;
     }
 
-    // تبدیل JSON به آرایه
-    const users = JSON.parse(data);
+    let users;
+    try {
+        users = JSON.parse(data || '[]'); // بررسی و مقداردهی اولیه در صورت خالی بودن فایل
+    } catch (err) {
+        console.error('خطا در تبدیل JSON:', err.message);
+        users = []; // مقداردهی پیش‌فرض در صورت نامعتبر بودن JSON
+    }
 
-    // اضافه کردن کاربر جدید
+    if (!Array.isArray(users)) {
+        console.error('فرمت فایل JSON نادرست است. باید یک آرایه باشد.');
+        return;
+    }
+
     users.push({
         id: users.length + 1,
         name: "زهرا",
-        age: 25
+        age: 25,
     });
 
-    // ذخیره دوباره فایل
     fs.writeFile('users.json', JSON.stringify(users, null, 2), (err) => {
         if (err) {
-            console.error('خطا در نوشتن فایل:', err);
+            console.error('خطا در نوشتن فایل JSON:', err);
             return;
         }
         console.log('کاربر جدید اضافه شد!');
